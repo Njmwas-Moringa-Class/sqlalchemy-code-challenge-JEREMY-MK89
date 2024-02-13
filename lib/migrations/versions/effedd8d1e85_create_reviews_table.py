@@ -23,11 +23,39 @@ def upgrade() -> None:
     # Drop 'restaurants' table if it exists
     op.drop_table('restaurants', if_exists=True)
 
+    # Create 'reviews' table with the 'comment' column
+    op.create_table('reviews',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('comment', sa.String(), nullable=True),  # Add this line
+        sa.Column('star_rating', sa.Integer(), nullable=True),
+        sa.Column('customer_id', sa.Integer(), nullable=True),
+        sa.Column('restaurant_id', sa.Integer(), nullable=True),
+        sa.ForeignKeyConstraint(['customer_id'], ['customers.id'], ),
+        sa.ForeignKeyConstraint(['restaurant_id'], ['restaurants.id'], ),
+        sa.PrimaryKeyConstraint('id')
+    )
+
+    # Recreate 'restaurants' table
+    op.create_table('restaurants',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('name', sa.String(), nullable=True),
+        sa.Column('price', sa.Integer(), nullable=True),
+        sa.PrimaryKeyConstraint('id')
+    )
+
+    # Recreate 'customers' table
+    op.create_table('customers',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('first_name', sa.String(), nullable=True),
+        sa.Column('last_name', sa.String(), nullable=True),
+        sa.PrimaryKeyConstraint('id')
+    )
+
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
-    # Create 'reviews' table
+    # Recreate 'reviews' table without 'comment' column
     op.create_table('reviews',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('star_rating', sa.Integer(), nullable=True),
@@ -38,7 +66,7 @@ def downgrade() -> None:
         sa.PrimaryKeyConstraint('id')
     )
 
-    # Create 'restaurants' table
+    # Recreate 'restaurants' table
     op.create_table('restaurants',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(), nullable=True),
@@ -46,7 +74,7 @@ def downgrade() -> None:
         sa.PrimaryKeyConstraint('id')
     )
 
-    # Create 'customers' table
+    # Recreate 'customers' table
     op.create_table('customers',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('first_name', sa.String(), nullable=True),

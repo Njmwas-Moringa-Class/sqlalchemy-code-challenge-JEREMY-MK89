@@ -1,25 +1,34 @@
-
-
-from model import Base, Restaurant, Customer, Review
+# seed.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from models import Base, Customer, Restaurant, Review
 
-engine = create_engine('sqlite:///db/restaurants.db')
-Base.metadata.create_all(engine)
-
+# Create the engine and bind it to the session
+engine = create_engine('sqlite:///db/restaurants.db', echo=True)
+Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Create sample data
-restaurant1 = Restaurant(name='Restaurant A', price=3)
-restaurant2 = Restaurant(name='Restaurant B', price=2)
+# Seed the database with some initial data
+def seed_database():
+    # Add customers
+    customer1 = Customer(first_name='Jeremy', last_name='kingi')
+    customer2 = Customer(first_name='Juma', last_name='ramadhan')
+    session.add_all([customer1, customer2])
 
-customer1 = Customer(first_name='John', last_name='Doe')
-customer2 = Customer(first_name='Jane', last_name='Doe')
+    # Add restaurants
+    restaurant1 = Restaurant(name='Restaurant Barak', price=2)
+    restaurant2 = Restaurant(name='Restaurant Taribush', price=3)
+    session.add_all([restaurant1, restaurant2])
 
-review1 = Review(star_rating=4, customer=customer1, restaurant=restaurant1)
-review2 = Review(star_rating=5, customer=customer2, restaurant=restaurant1)
-review3 = Review(star_rating=3, customer=customer1, restaurant=restaurant2)
+    # Add reviews
+    review1 = Review(comment='Great food!', star_rating=5, restaurant=restaurant1, customer=customer1)
+    review2 = Review(comment='Average experience.', star_rating=3, restaurant=restaurant2, customer=customer2)
+    session.add_all([review1, review2])
 
-session.add_all([restaurant1, restaurant2, customer1, customer2, review1, review2, review3])
-session.commit()
+    # Commit changes to the database
+    session.commit()
+
+if __name__ == '__main__':
+    # Run the seed function when the script is executed
+    seed_database()
